@@ -1,662 +1,1005 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>MediVault - Secure Medical Records Platform</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Med-Vault</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Sans+3:wght@300;400;500;600&family=Source+Code+Pro:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0a1628;--navy-2:#112240;--navy-3:#1a3358;
+  --gold:#c9a84c;--gold-light:#e8c96a;
+  --gold-dim:rgba(201,168,76,.12);--gold-border:rgba(201,168,76,.28);
+  --white:#f0ece4;--off-white:#d8d2c6;--muted:#8a96a8;
+  --border:rgba(255,255,255,.07);--border-strong:rgba(255,255,255,.13);
+  --green:#4ade80;--red:#f87171;
+  --shadow:0 4px 28px rgba(0,0,0,.45);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Source Sans 3',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;
+  background-image:radial-gradient(ellipse at 18% 0%,rgba(201,168,76,.06) 0%,transparent 52%),
+  radial-gradient(ellipse at 82% 100%,rgba(17,34,64,.7) 0%,transparent 52%);}
+::-webkit-scrollbar{width:5px;}::-webkit-scrollbar-track{background:var(--navy);}
+::-webkit-scrollbar-thumb{background:var(--navy-3);border-radius:3px;}
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+.navbar{background:rgba(10,22,40,.96);backdrop-filter:blur(14px);border-bottom:1px solid var(--gold-border);
+  padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;}
+.brand{display:flex;align-items:center;gap:12px;}
+.brand-icon{width:38px;height:38px;background:linear-gradient(135deg,var(--gold),#a07830);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;}
+.brand-icon svg{width:18px;height:18px;stroke:var(--navy);fill:none;stroke-width:2.5;stroke-linecap:round;}
+.brand-name{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--white);}
+.brand-name span{color:var(--gold);}
+.nav-btn{background:transparent;border:1px solid var(--border-strong);border-radius:6px;padding:8px 18px;
+  color:var(--off-white);font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:500;
+  cursor:pointer;transition:all .2s;}
+.nav-btn:hover{border-color:var(--gold);color:var(--gold);}
 
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
+.page{display:none;min-height:calc(100vh - 64px);}
+.page.active{display:block;}
 
-        /* Cards & Layout */
-        .card {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
+/* LANDING */
+.landing{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 64px);padding:60px 24px;}
+.landing-inner{text-align:center;max-width:660px;}
+.landing-badge{display:inline-block;background:var(--gold-dim);border:1px solid var(--gold-border);color:var(--gold);
+  font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:6px 18px;
+  border-radius:100px;margin-bottom:28px;}
+.landing-title{font-family:'Playfair Display',serif;font-size:50px;font-weight:700;color:var(--white);
+  margin-bottom:16px;line-height:1.15;}
+.landing-title span{color:var(--gold);}
+.landing-sub{font-size:16px;color:var(--muted);font-weight:300;margin-bottom:52px;line-height:1.75;}
+.portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.portal-card{background:var(--navy-2);border:1px solid var(--border-strong);border-radius:16px;
+  padding:40px 36px;cursor:pointer;transition:all .25s;text-align:left;position:relative;overflow:hidden;}
+.portal-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),#a07830);transform:scaleX(0);transform-origin:left;transition:transform .3s;}
+.portal-card:hover{border-color:var(--gold-border);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.42);}
+.portal-card:hover::after{transform:scaleX(1);}
+.portal-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  margin-bottom:24px;background:var(--gold-dim);border:1px solid var(--gold-border);}
+.portal-icon svg{width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.portal-card h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:700;margin-bottom:10px;color:var(--white);}
+.portal-card p{font-size:13px;color:var(--muted);line-height:1.7;font-weight:300;}
+.portal-arrow{position:absolute;top:40px;right:36px;width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--border-strong);display:flex;align-items:center;justify-content:center;opacity:0;transition:all .2s;}
+.portal-arrow svg{width:14px;height:14px;stroke:var(--gold);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.portal-card:hover .portal-arrow{opacity:1;border-color:var(--gold-border);}
 
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
+/* AUTH */
+.auth-wrap{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 64px);padding:40px 20px;}
+.auth-card{background:var(--navy-2);border:1px solid var(--border-strong);border-radius:20px;padding:48px 40px;
+  width:100%;max-width:460px;box-shadow:var(--shadow);}
+.auth-icon{width:64px;height:64px;background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:14px;
+  display:flex;align-items:center;justify-content:center;margin:0 auto 24px;}
+.auth-icon svg{width:28px;height:28px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.auth-card h2{font-family:'Playfair Display',serif;font-size:26px;text-align:center;margin-bottom:6px;}
+.auth-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:32px;font-weight:300;}
+.auth-btns{display:flex;flex-direction:column;gap:12px;}
 
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
+/* FORM */
+.form-group{margin-bottom:18px;}
+.form-group label{display:block;font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:7px;}
+.req{color:var(--gold);}
+.form-control{width:100%;padding:12px 15px;background:rgba(255,255,255,.045);border:1px solid var(--border-strong);
+  border-radius:8px;color:var(--white);font-family:'Source Sans 3',sans-serif;font-size:14px;
+  outline:none;transition:border-color .2s,background .2s;}
+.form-control::placeholder{color:var(--muted);}
+.form-control:focus{border-color:var(--gold);background:rgba(201,168,76,.05);}
+.form-control option{background:var(--navy-2);color:var(--white);}
+textarea.form-control{resize:vertical;min-height:80px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
 
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: #f0f0f0;
-            color: #333;
-        }
+/* BUTTONS */
+.btn-gold{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold),#a07830);border:none;
+  border-radius:10px;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:600;
+  color:var(--navy);cursor:pointer;transition:all .2s;letter-spacing:.04em;}
+.btn-gold:hover:not(:disabled){background:linear-gradient(135deg,var(--gold-light),var(--gold));transform:translateY(-1px);}
+.btn-gold:disabled{opacity:.55;cursor:not-allowed;transform:none;}
+.btn-outline{width:100%;padding:14px;background:transparent;border:1px solid var(--border-strong);
+  border-radius:10px;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:500;
+  color:var(--off-white);cursor:pointer;transition:all .2s;}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold);}
+.back-link{display:block;text-align:center;margin-top:20px;color:var(--muted);font-size:13px;
+  cursor:pointer;transition:color .15s;font-weight:300;}
+.back-link:hover{color:var(--gold);}
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
+/* DASHBOARD */
+.dashboard{padding:32px;max-width:980px;margin:0 auto;}
+.dash-header{background:var(--navy-2);border:1px solid var(--border);border-top:2px solid var(--gold);
+  border-radius:16px;padding:28px 32px;display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:20px;margin-bottom:28px;}
+.dash-left{display:flex;align-items:center;gap:18px;}
+.dash-avatar{width:58px;height:58px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+  background:var(--gold-dim);border:1px solid var(--gold-border);flex-shrink:0;}
+.dash-avatar svg{width:26px;height:26px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.dash-name{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;}
+.dash-sub{font-size:12px;color:var(--muted);margin-top:3px;letter-spacing:.04em;}
+.dash-sub span{color:var(--gold);font-family:'Source Code Pro',monospace;font-weight:600;}
+.btn-add{display:flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid var(--gold-border);
+  border-radius:8px;padding:11px 20px;color:var(--gold);font-family:'Source Sans 3',sans-serif;
+  font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;}
+.btn-add:hover{background:var(--gold);color:var(--navy);}
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102,126,234,0.4);
-        }
+.search-box{background:var(--navy-2);border:1px solid var(--border);border-radius:16px;padding:28px 32px;margin-bottom:28px;}
+.sec-label{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:16px;}
+.search-row{display:flex;gap:12px;}
+.search-row .form-control{flex:1;}
+.btn-search{padding:12px 28px;background:linear-gradient(135deg,var(--gold),#a07830);border:none;border-radius:8px;
+  font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;color:var(--navy);
+  cursor:pointer;transition:all .2s;white-space:nowrap;}
+.btn-search:hover:not(:disabled){background:linear-gradient(135deg,var(--gold-light),var(--gold));}
+.btn-search:disabled{opacity:.55;cursor:not-allowed;}
 
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
+.empty-state{background:var(--navy-2);border:1px solid var(--border);border-radius:16px;padding:72px 24px;text-align:center;}
+.empty-state h3{font-family:'Playfair Display',serif;font-size:22px;margin:14px 0 10px;color:var(--off-white);}
+.empty-state p{color:var(--muted);font-size:14px;font-weight:300;max-width:380px;margin:0 auto;line-height:1.7;}
 
-        .btn-danger:hover {
-            background: #dc2626;
-        }
+/* PAT ID BOX */
+.pat-id-box{background:rgba(201,168,76,.08);border:1px solid var(--gold-border);border-radius:12px;
+  padding:16px 20px;display:flex;align-items:center;gap:16px;}
+.pat-id-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);margin-bottom:6px;}
+.pat-id-num{font-family:'Source Code Pro',monospace;font-size:24px;font-weight:600;color:var(--white);letter-spacing:4px;}
+.copy-btn{background:var(--gold-dim);border:1px solid var(--gold-border);border-radius:8px;width:38px;height:38px;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;}
+.copy-btn:hover{background:var(--gold);}
+.copy-btn svg{width:16px;height:16px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.copy-btn:hover svg{stroke:var(--navy);}
 
-        .input-group {
-            margin-bottom: 20px;
-        }
+/* RECORD CARDS */
+.records-wrap{display:flex;flex-direction:column;gap:16px;margin-top:20px;}
+.record-card{background:var(--navy-2);border:1px solid var(--border);border-radius:14px;padding:24px;transition:all .2s;}
+.record-card:hover{border-color:var(--gold-border);box-shadow:0 4px 20px rgba(201,168,76,.08);}
+.rec-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;
+  padding-bottom:14px;border-bottom:1px solid var(--border);}
+.rec-hosp-row{display:flex;align-items:center;gap:12px;}
+.rec-hosp-icon{width:38px;height:38px;border-radius:9px;background:var(--gold-dim);border:1px solid var(--gold-border);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.rec-hosp-icon svg{width:18px;height:18px;stroke:var(--gold);fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;}
+.rec-hosp-name{font-weight:600;font-size:15px;}
+.rec-meta{display:flex;gap:14px;margin-top:4px;}
+.rec-meta span{font-size:12px;color:var(--muted);font-weight:300;}
+.own-tag{font-size:10px;font-weight:600;text-transform:uppercase;color:var(--gold);background:var(--gold-dim);
+  border:1px solid var(--gold-border);padding:3px 10px;border-radius:100px;margin-left:8px;letter-spacing:.06em;}
+.rec-fields{display:grid;gap:12px;}
+.rfl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin-bottom:3px;}
+.rfv{font-size:14px;color:var(--off-white);font-weight:300;line-height:1.6;}
+.rec-img{margin-top:14px;border-radius:10px;max-width:100%;max-height:320px;object-fit:contain;border:1px solid var(--border-strong);}
 
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-        }
+/* LEDGER */
+.ledger-card{background:var(--navy-2);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:28px;}
+.ledger-head{background:rgba(201,168,76,.07);border-bottom:1px solid var(--border);padding:18px 24px;
+  display:flex;align-items:center;justify-content:space-between;}
+.ledger-title{font-family:'Playfair Display',serif;font-size:17px;}
+.ledger-count{font-size:11px;font-weight:600;color:var(--gold);background:var(--gold-dim);
+  border:1px solid var(--gold-border);padding:3px 12px;border-radius:100px;}
+.ltable{width:100%;border-collapse:collapse;font-size:13px;}
+.ltable th{background:rgba(255,255,255,.03);color:var(--muted);font-size:10px;letter-spacing:.1em;
+  text-transform:uppercase;font-weight:600;padding:10px 18px;text-align:left;border-bottom:1px solid var(--border);}
+.ltable td{padding:12px 18px;border-bottom:1px solid var(--border);color:var(--off-white);font-weight:300;vertical-align:middle;}
+.ltable tr:last-child td{border-bottom:none;}
+.ltable tr:hover td{background:rgba(255,255,255,.02);}
+.mono{font-family:'Source Code Pro',monospace;font-size:12px;color:var(--gold);}
+.badge{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.06em;padding:2px 10px;border-radius:100px;
+  border:1px solid var(--gold-border);color:var(--gold);background:var(--gold-dim);}
 
-        .input-group input, .input-group textarea, .input-group select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(5px);
+  z-index:200;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--navy-2);border:1px solid var(--border-strong);border-top:2px solid var(--gold);
+  border-radius:20px;padding:36px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow);}
+.modal h3{font-family:'Playfair Display',serif;font-size:22px;margin-bottom:6px;}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:26px;font-weight:300;}
+.modal-actions{display:flex;gap:12px;margin-top:26px;}
+.modal-actions .btn-gold{flex:1;}
+.btn-cancel{flex:1;padding:14px;background:transparent;border:1px solid var(--border-strong);border-radius:10px;
+  color:var(--off-white);font-family:'Source Sans 3',sans-serif;font-size:14px;cursor:pointer;transition:all .2s;}
+.btn-cancel:hover{border-color:var(--muted);}
+.img-upload{border:1px dashed var(--border-strong);border-radius:10px;padding:24px;text-align:center;
+  cursor:pointer;transition:all .2s;background:rgba(255,255,255,.02);}
+.img-upload:hover{border-color:var(--gold);background:var(--gold-dim);}
+.img-upload p{font-size:13px;color:var(--muted);font-weight:300;margin-top:8px;}
+.img-preview{margin-top:12px;}
+.img-preview img{max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border-strong);}
+.img-remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:12px;margin-top:8px;font-family:inherit;}
 
-        .input-group input:focus, .input-group textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;background:var(--navy-2);border:1px solid var(--border-strong);
+  border-left:3px solid var(--green);border-radius:12px;padding:16px 20px;box-shadow:var(--shadow);
+  max-width:340px;z-index:300;transform:translateX(150%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);}
+.toast.show{transform:translateX(0);}
+.toast.err{border-left-color:var(--red);}
+.toast-title{font-weight:600;font-size:14px;color:var(--white);margin-bottom:4px;}
+.toast-msg{font-size:13px;color:var(--muted);font-weight:300;}
 
-        .grid-2 {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
+/* LOADING OVERLAY */
+#goverlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,.92);z-index:999;
+  flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+.spinner{width:36px;height:36px;border:2px solid var(--border);border-top-color:var(--gold);
+  border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading{text-align:center;padding:60px 20px;color:var(--muted);font-size:14px;}
+.loading .spinner{margin:0 auto 14px;}
 
-        .record-card {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            border-left: 4px solid #667eea;
-            margin-bottom: 15px;
-        }
-
-        .record-card h4 {
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .record-image {
-            max-width: 100%;
-            border-radius: 10px;
-            margin-top: 10px;
-        }
-
-        .review-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            background: #10b981;
-            color: white;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-top: 10px;
-        }
-
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .hospital-code {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
-        }
-
-        @media (max-width: 768px) {
-            .card {
-                padding: 20px;
-            }
-            .logo {
-                font-size: 22px;
-            }
-        }
-    </style>
+@media(max-width:640px){
+  .portal-grid{grid-template-columns:1fr;}
+  .landing-title{font-size:34px;}
+  .auth-card{padding:32px 22px;}
+  .dashboard{padding:18px 14px;}
+  .dash-header{flex-direction:column;align-items:flex-start;}
+  .modal{padding:24px;}
+  .search-row{flex-direction:column;}
+  .form-row{grid-template-columns:1fr;}
+}
+</style>
 </head>
 <body>
-    <div class="container" id="app"></div>
 
-    <script>
-        // Data storage using localStorage
-        let patients = JSON.parse(localStorage.getItem('mediVault_patients')) || [];
-        let hospitals = JSON.parse(localStorage.getItem('mediVault_hospitals')) || [];
-        let medicalRecords = JSON.parse(localStorage.getItem('mediVault_records')) || [];
-        let reviews = JSON.parse(localStorage.getItem('mediVault_reviews')) || [];
+<nav class="navbar">
+  <div class="brand">
+    <div class="brand-icon"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg></div>
+    <span class="brand-name">Med<span>-Vault</span></span>
+  </div>
+  <button class="nav-btn" id="navBtn" style="display:none" onclick="handleNav()">
+    <span id="navBtnTxt">Logout</span>
+  </button>
+</nav>
 
-        // Helper functions
-        function generate10DigitID() {
-            let id = '';
-            for(let i = 0; i < 10; i++) {
-                id += Math.floor(Math.random() * 10);
-            }
-            return id;
-        }
+<!-- LANDING -->
+<div class="page active" id="page-landing">
+  <div class="landing"><div class="landing-inner">
+    <div class="landing-badge">Secure Medical Record System</div>
+    <h1 class="landing-title">Your Health History,<br><span>Always Available</span></h1>
+    <p class="landing-sub">A centralised vault for medical records — stored securely, accessible from any device, owned by you.</p>
+    <div class="portal-grid">
+      <div class="portal-card" onclick="go('page-patient-auth')">
+        <div class="portal-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+        <h3>Patient Portal</h3>
+        <p>View your complete medical history from all hospitals in one place.</p>
+        <div class="portal-arrow"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </div>
+      <div class="portal-card" onclick="go('page-hospital-auth')">
+        <div class="portal-icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="15" rx="1"/><path d="M3 10h18M8 6V4h8v2M12 13v4M10 15h4"/></svg></div>
+        <h3>Hospital Portal</h3>
+        <p>Search patients, review prior records, and add new medical entries.</p>
+        <div class="portal-arrow"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+      </div>
+    </div>
+  </div></div>
+</div>
 
-        function generateHospitalCode() {
-            const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            let code = 'H-';
-            for(let i = 0; i < 6; i++) {
-                if(i < 2) code += letters[Math.floor(Math.random() * 26)];
-                else code += Math.floor(Math.random() * 10);
-            }
-            return code;
-        }
+<!-- PATIENT AUTH -->
+<div class="page" id="page-patient-auth">
+  <div class="auth-wrap"><div class="auth-card">
+    <div class="auth-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+    <h2>Patient Portal</h2><p class="auth-sub">Access your medical records</p>
+    <div class="auth-btns">
+      <button class="btn-gold" onclick="go('page-patient-login')">I have a Patient ID</button>
+      <button class="btn-outline" onclick="go('page-patient-register')">Register New Patient</button>
+    </div>
+    <span class="back-link" onclick="go('page-landing')">← Back to home</span>
+  </div></div>
+</div>
 
-        function saveAllData() {
-            localStorage.setItem('mediVault_patients', JSON.stringify(patients));
-            localStorage.setItem('mediVault_hospitals', JSON.stringify(hospitals));
-            localStorage.setItem('mediVault_records', JSON.stringify(medicalRecords));
-            localStorage.setItem('mediVault_reviews', JSON.stringify(reviews));
-        }
+<!-- PATIENT LOGIN -->
+<div class="page" id="page-patient-login">
+  <div class="auth-wrap"><div class="auth-card">
+    <div class="auth-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+    <h2>Patient Login</h2><p class="auth-sub">Enter your 10-digit Patient ID</p>
+    <div class="form-group">
+      <label>Patient ID</label>
+      <input type="text" id="patLoginId" class="form-control"
+        placeholder="e.g., 4512378906" maxlength="10" inputmode="numeric"
+        style="font-family:'Source Code Pro',monospace;letter-spacing:4px;font-size:18px;text-align:center;">
+    </div>
+    <button class="btn-gold" id="patLoginBtn" onclick="loginPatient()">Access Records</button>
+    <span class="back-link" onclick="go('page-patient-auth')">← Back</span>
+  </div></div>
+</div>
 
-        // Navigation state
-        let currentView = 'landing'; // landing, patientLogin, hospitalLogin, patientRegister, hospitalRegister, patientDashboard, hospitalDashboard
-        let currentPatient = null;
-        let currentHospital = null;
+<!-- PATIENT REGISTER -->
+<div class="page" id="page-patient-register">
+  <div class="auth-wrap"><div class="auth-card">
+    <div class="auth-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+    <h2>Register as Patient</h2><p class="auth-sub">Create your Med-Vault account</p>
+    <div class="form-group">
+      <label>Full Name <span class="req">*</span></label>
+      <input type="text" id="patRegName" class="form-control" placeholder="Enter your full name">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Gender <span class="req">*</span></label>
+        <select id="patRegGender" class="form-control">
+          <option value="">Select gender</option>
+          <option>Male</option><option>Female</option>
+          <option>Other</option><option value="Prefer not to say">Prefer not to say</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Blood Group</label>
+        <select id="patRegBlood" class="form-control">
+          <option value="">Select</option>
+          <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+          <option>AB+</option><option>AB-</option><option>O+</option><option>O-</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Date of Birth</label>
+        <input type="date" id="patRegDob" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="patRegPhone" class="form-control" placeholder="Contact number">
+      </div>
+    </div>
+    <button class="btn-gold" id="patRegBtn" onclick="registerPatient()">Register &amp; Get Patient ID</button>
+    <span class="back-link" onclick="go('page-patient-auth')">← Back</span>
+  </div></div>
+</div>
 
-        function render() {
-            const app = document.getElementById('app');
-            
-            if(currentView === 'landing') {
-                app.innerHTML = `
-                    <div class="card" style="text-align: center; max-width: 500px; margin: 50px auto;">
-                        <h1 class="logo" style="font-size: 48px; margin-bottom: 20px;">MediVault</h1>
-                        <p style="color: #666; margin-bottom: 30px;">Your Medical Records, Secured & Accessible</p>
-                        
-                        <div class="grid-2" style="gap: 15px;">
-                            <button class="btn btn-primary" onclick="navigateTo('patientLogin')">Patient Portal</button>
-                            <button class="btn btn-primary" onclick="navigateTo('hospitalLogin')">Hospital Portal</button>
-                        </div>
-                    </div>
-                `;
-            }
-            else if(currentView === 'patientLogin') {
-                app.innerHTML = `
-                    <div class="card" style="max-width: 500px; margin: 50px auto;">
-                        <button class="btn" onclick="navigateTo('landing')" style="margin-bottom: 20px;">← Back</button>
-                        <h2>Patient Portal</h2>
-                        <p style="color: #666; margin-bottom: 20px;">Access your medical records</p>
-                        
-                        <div class="input-group">
-                            <label>Patient ID (10-digit)</label>
-                            <input type="text" id="patientId" maxlength="10" placeholder="Enter your 10-digit ID">
-                        </div>
-                        <button class="btn btn-primary" onclick="loginPatient()" style="width: 100%;">Login</button>
-                        
-                        <hr style="margin: 20px 0;">
-                        <button class="btn" onclick="navigateTo('patientRegister')" style="width: 100%;">Register New Patient</button>
-                    </div>
-                `;
-            }
-            else if(currentView === 'patientRegister') {
-                app.innerHTML = `
-                    <div class="card" style="max-width: 500px; margin: 50px auto;">
-                        <button class="btn" onclick="navigateTo('patientLogin')" style="margin-bottom: 20px;">← Back</button>
-                        <h2>Register New Patient</h2>
-                        
-                        <div class="input-group">
-                            <label>Full Name *</label>
-                            <input type="text" id="regName" placeholder="Enter your full name">
-                        </div>
-                        <div class="input-group">
-                            <label>Date of Birth</label>
-                            <input type="date" id="regDob">
-                        </div>
-                        <div class="input-group">
-                            <label>Contact Number</label>
-                            <input type="tel" id="regPhone" placeholder="Enter contact number">
-                        </div>
-                        <button class="btn btn-primary" onclick="registerPatient()" style="width: 100%;">Register</button>
-                    </div>
-                `;
-            }
-            else if(currentView === 'hospitalLogin') {
-                app.innerHTML = `
-                    <div class="card" style="max-width: 500px; margin: 50px auto;">
-                        <button class="btn" onclick="navigateTo('landing')" style="margin-bottom: 20px;">← Back</button>
-                        <h2>Hospital Portal</h2>
-                        <p style="color: #666; margin-bottom: 20px;">Manage patient medical records</p>
-                        
-                        <div class="input-group">
-                            <label>Hospital Code</label>
-                            <input type="text" id="hospitalCode" placeholder="e.g., H-ABC123">
-                        </div>
-                        <button class="btn btn-primary" onclick="loginHospital()" style="width: 100%; margin-bottom: 10px;">Login</button>
-                        
-                        <hr style="margin: 20px 0;">
-                        <button class="btn" onclick="navigateTo('hospitalRegister')" style="width: 100%;">Register New Hospital</button>
-                    </div>
-                `;
-            }
-            else if(currentView === 'hospitalRegister') {
-                app.innerHTML = `
-                    <div class="card" style="max-width: 500px; margin: 50px auto;">
-                        <button class="btn" onclick="navigateTo('hospitalLogin')" style="margin-bottom: 20px;">← Back</button>
-                        <h2>Register New Hospital</h2>
-                        
-                        <div class="input-group">
-                            <label>Hospital Name *</label>
-                            <input type="text" id="regHospitalName" placeholder="Enter hospital name">
-                        </div>
-                        <div class="input-group">
-                            <label>Address</label>
-                            <input type="text" id="regAddress" placeholder="Enter hospital address">
-                        </div>
-                        <div class="input-group">
-                            <label>Phone Number</label>
-                            <input type="tel" id="regHospitalPhone" placeholder="Enter contact number">
-                        </div>
-                        <div class="input-group">
-                            <label>License Number</label>
-                            <input type="text" id="regLicense" placeholder="Enter medical license number">
-                        </div>
-                        <button class="btn btn-primary" onclick="registerHospital()" style="width: 100%;">Register Hospital</button>
-                    </div>
-                `;
-            }
-            else if(currentView === 'patientDashboard' && currentPatient) {
-                const patientRecords = medicalRecords.filter(r => r.patientId === currentPatient.id);
-                app.innerHTML = `
-                    <div class="card">
-                        <div class="header">
-                            <h1 class="logo">MediVault</h1>
-                            <button class="btn btn-danger" onclick="logout()">Logout</button>
-                        </div>
-                        
-                        <div class="hospital-code" style="background: linear-gradient(135deg, #10b981, #059669);">
-                            <div>Your Patient ID</div>
-                            <div style="font-size: 32px;">${currentPatient.id}</div>
-                            <div style="font-size: 12px; margin-top: 10px;">Share this ID with hospitals to allow them to add your medical records</div>
-                        </div>
-                        
-                        <h3>Welcome, ${currentPatient.name}!</h3>
-                        <p style="color: #666; margin-bottom: 20px;">Your Medical Records from Different Hospitals</p>
-                        
-                        ${patientRecords.length === 0 ? '<p style="color: #999;">No medical records found. Share your Patient ID with hospitals to add records.</p>' : ''}
-                        
-                        ${patientRecords.map(record => `
-                            <div class="record-card">
-                                <h4>🏥 ${record.hospitalName}</h4>
-                                <p><strong>📅 Date:</strong> ${new Date(record.date).toLocaleDateString()}</p>
-                                <p><strong>🔍 Diagnosis:</strong> ${record.diagnosis}</p>
-                                <p><strong>💊 Prescription:</strong> ${record.prescription}</p>
-                                <p><strong>📝 Notes:</strong> ${record.notes}</p>
-                                ${record.imageData ? `<img src="${record.imageData}" class="record-image" style="max-width: 200px; margin-top: 10px;">` : ''}
-                                ${record.reviews && record.reviews.length > 0 ? `
-                                    <div style="margin-top: 15px; padding: 10px; background: #e0e7ff; border-radius: 10px;">
-                                        <strong>👨‍⚕️ Peer Reviews:</strong>
-                                        ${record.reviews.map(review => `
-                                            <div style="margin-top: 8px; font-size: 13px; border-top: 1px solid #ccc; padding-top: 5px;">
-                                                <strong>${review.hospitalName}:</strong> ${review.comment}
-                                                <div style="color: #666;">Rating: ${'⭐'.repeat(review.rating)}</div>
-                                            </div>
-                                        `).join('')}
-                                    </div>
-                                ` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }
-            else if(currentView === 'hospitalDashboard' && currentHospital) {
-                const hospitalRecords = medicalRecords.filter(r => r.hospitalId === currentHospital.code);
-                app.innerHTML = `
-                    <div class="card">
-                        <div class="header">
-                            <h1 class="logo">MediVault</h1>
-                            <button class="btn btn-danger" onclick="logout()">Logout</button>
-                        </div>
-                        
-                        <div class="hospital-code">
-                            Hospital Code: ${currentHospital.code}
-                        </div>
-                        
-                        <h3>🏥 ${currentHospital.name}</h3>
-                        
-                        <div class="input-group">
-                            <label>Search Patient Records (Enter 10-digit Patient ID)</label>
-                            <div style="display: flex; gap: 10px;">
-                                <input type="text" id="searchPatientId" maxlength="10" placeholder="Enter 10-digit Patient ID" style="flex: 1;">
-                                <button class="btn btn-primary" onclick="searchPatient()">Search</button>
-                            </div>
-                        </div>
-                        
-                        <div id="searchResults"></div>
-                        
-                        <hr style="margin: 30px 0;">
-                        
-                        <h4>Add New Medical Record</h4>
-                        <div id="addRecordForm">
-                            <div class="input-group">
-                                <label>Patient ID (10-digit)</label>
-                                <input type="text" id="recordPatientId" maxlength="10" placeholder="Enter patient's 10-digit ID">
-                            </div>
-                            <div class="input-group">
-                                <label>Diagnosis</label>
-                                <input type="text" id="diagnosis" placeholder="Enter diagnosis">
-                            </div>
-                            <div class="input-group">
-                                <label>Prescription</label>
-                                <textarea id="prescription" rows="3" placeholder="Enter prescription details"></textarea>
-                            </div>
-                            <div class="input-group">
-                                <label>Additional Notes</label>
-                                <textarea id="notes" rows="3" placeholder="Enter any additional notes"></textarea>
-                            </div>
-                            <div class="input-group">
-                                <label>Upload Prescription Image (Optional)</label>
-                                <input type="file" id="prescriptionImage" accept="image/*">
-                            </div>
-                            <button class="btn btn-primary" onclick="addMedicalRecord()">Add Record</button>
-                        </div>
-                        
-                        <hr style="margin: 30px 0;">
-                        
-                        <h4>Review Records from Other Hospitals</h4>
-                        <div id="reviewSection">
-                            ${hospitalRecords.length === 0 ? '<p>No records added by this hospital yet.</p>' : ''}
-                            ${hospitalRecords.map(record => `
-                                <div class="record-card">
-                                    <h4>Patient ID: ${record.patientId}</h4>
-                                    <p><strong>Diagnosis:</strong> ${record.diagnosis}</p>
-                                    <p><strong>Prescription:</strong> ${record.prescription}</p>
-                                    <p><strong>Notes:</strong> ${record.notes}</p>
-                                    <button class="btn" style="margin-top: 10px;" onclick="showReviewForm('${record.id}')">Review This Record</button>
-                                    <div id="reviewForm_${record.id}" style="display: none; margin-top: 10px;">
-                                        <textarea id="reviewComment_${record.id}" placeholder="Enter your review comment" rows="2"></textarea>
-                                        <select id="reviewRating_${record.id}">
-                                            <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
-                                            <option value="4">⭐⭐⭐⭐ Good</option>
-                                            <option value="3">⭐⭐⭐ Average</option>
-                                            <option value="2">⭐⭐ Poor</option>
-                                            <option value="1">⭐ Very Poor</option>
-                                        </select>
-                                        <button class="btn btn-primary" onclick="submitReview('${record.id}')">Submit Review</button>
-                                    </div>
-                                    ${record.reviews ? record.reviews.map(review => `
-                                        <div style="margin-top: 10px; padding: 10px; background: #e0e7ff; border-radius: 10px;">
-                                            <strong>${review.hospitalName}:</strong> ${review.comment} (${'⭐'.repeat(review.rating)})
-                                        </div>
-                                    `).join('') : ''}
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                `;
-            }
-        }
+<!-- HOSPITAL AUTH -->
+<div class="page" id="page-hospital-auth">
+  <div class="auth-wrap"><div class="auth-card">
+    <div class="auth-icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="15" rx="1"/><path d="M3 10h18M8 6V4h8v2M12 13v4M10 15h4"/></svg></div>
+    <h2>Hospital Portal</h2><p class="auth-sub">Manage patient medical records</p>
+    <div class="auth-btns">
+      <button class="btn-gold" onclick="go('page-hospital-login')">I have a Hospital Code</button>
+      <button class="btn-outline" onclick="go('page-hospital-register')">Register New Hospital</button>
+    </div>
+    <span class="back-link" onclick="go('page-landing')">← Back to home</span>
+  </div></div>
+</div>
 
-        // Navigation functions
-        window.navigateTo = function(view) {
-            currentView = view;
-            render();
-        };
+<!-- HOSPITAL LOGIN -->
+<div class="page" id="page-hospital-login">
+  <div class="auth-wrap"><div class="auth-card">
+    <div class="auth-icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="15" rx="1"/><path d="M3 10h18M8 6V4h8v2M12 13v4M10 15h4"/></svg></div>
+    <h2>Hospital Login</h2><p class="auth-sub">Enter your assigned Hospital Code</p>
+    <div class="form-group">
+      <label>Hospital Code</label>
+      <input type="text" id="hospLoginCode" class="form-control" placeholder="e.g., H-AB12CD"
+        style="text-transform:uppercase;font-family:'Source Code Pro',monospace;letter-spacing:4px;text-align:center;font-size:18px;">
+    </div>
+    <button class="btn-gold" id="hospLoginBtn" onclick="loginHospital()">Login</button>
+    <span class="back-link" onclick="go('page-hospital-auth')">← Back</span>
+  </div></div>
+</div>
 
-        window.logout = function() {
-            currentPatient = null;
-            currentHospital = null;
-            navigateTo('landing');
-        };
+<!-- HOSPITAL REGISTER -->
+<div class="page" id="page-hospital-register">
+  <div class="auth-wrap"><div class="auth-card">
+    <div class="auth-icon"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="15" rx="1"/><path d="M3 10h18M8 6V4h8v2M12 13v4M10 15h4"/></svg></div>
+    <h2>Register Hospital</h2><p class="auth-sub">Create your hospital's Med-Vault account</p>
+    <div class="form-group">
+      <label>Hospital Name <span class="req">*</span></label>
+      <input type="text" id="hospRegName" class="form-control" placeholder="Enter hospital name">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Hospital Type <span class="req">*</span></label>
+        <select id="hospRegType" class="form-control">
+          <option value="">Select type</option>
+          <option value="Public">Public Hospital</option>
+          <option value="Private">Private Hospital</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Phone Number</label>
+        <input type="tel" id="hospRegPhone" class="form-control" placeholder="Contact number">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Address</label>
+      <input type="text" id="hospRegAddr" class="form-control" placeholder="Hospital address">
+    </div>
+    <div class="form-group">
+      <label>Medical License Number</label>
+      <input type="text" id="hospRegLic" class="form-control" placeholder="License number">
+    </div>
+    <button class="btn-gold" id="hospRegBtn" onclick="registerHospital()">Register Hospital</button>
+    <span class="back-link" onclick="go('page-hospital-auth')">← Back</span>
+  </div></div>
+</div>
 
-        // Patient functions
-        window.registerPatient = function() {
-            const name = document.getElementById('regName')?.value;
-            if(!name) {
-                alert('Please enter your name');
-                return;
-            }
-            
-            const newPatient = {
-                id: generate10DigitID(),
-                name: name,
-                dob: document.getElementById('regDob')?.value || '',
-                phone: document.getElementById('regPhone')?.value || '',
-                registeredAt: new Date().toISOString()
-            };
-            
-            patients.push(newPatient);
-            saveAllData();
-            
-            alert(`Registration Successful!\n\nYour Patient ID is: ${newPatient.id}\nPlease save this ID for future logins.`);
-            navigateTo('patientLogin');
-        };
+<!-- HOSPITAL DASHBOARD -->
+<div class="page" id="page-hosp-dash">
+  <div class="dashboard">
+    <div class="dash-header">
+      <div class="dash-left">
+        <div class="dash-avatar"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="15" rx="1"/><path d="M3 10h18M8 6V4h8v2M12 13v4M10 15h4"/></svg></div>
+        <div>
+          <div class="dash-name" id="hospDashName">Hospital</div>
+          <div class="dash-sub">Code: <span id="hospDashCode">—</span></div>
+          <div class="dash-sub" id="hospDashType" style="margin-top:2px;"></div>
+        </div>
+      </div>
+      <button class="btn-add" onclick="openModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="width:14px;height:14px"><path d="M12 5v14M5 12h14"/></svg>
+        Add Patient Record
+      </button>
+    </div>
 
-        window.loginPatient = function() {
-            const id = document.getElementById('patientId')?.value;
-            const patient = patients.find(p => p.id === id);
-            
-            if(patient) {
-                currentPatient = patient;
-                currentView = 'patientDashboard';
-                render();
-            } else {
-                alert('Patient ID not found. Please register first.');
-            }
-        };
+    <div class="search-box">
+      <div class="sec-label">Search Patient Records</div>
+      <div class="search-row">
+        <input type="text" id="hospSearchId" class="form-control"
+          placeholder="Enter 10-digit Patient ID" maxlength="10" inputmode="numeric"
+          style="font-family:'Source Code Pro',monospace;letter-spacing:2px;">
+        <button class="btn-search" id="searchBtn" onclick="searchPatient()">Search</button>
+      </div>
+    </div>
 
-        // Hospital functions
-        window.registerHospital = function() {
-            const name = document.getElementById('regHospitalName')?.value;
-            if(!name) {
-                alert('Please enter hospital name');
-                return;
-            }
-            
-            const newHospital = {
-                code: generateHospitalCode(),
-                name: name,
-                address: document.getElementById('regAddress')?.value || '',
-                phone: document.getElementById('regHospitalPhone')?.value || '',
-                license: document.getElementById('regLicense')?.value || '',
-                registeredAt: new Date().toISOString()
-            };
-            
-            hospitals.push(newHospital);
-            saveAllData();
-            
-            alert(`Registration Successful!\n\nYour Hospital Code is: ${newHospital.code}\nPlease save this code for future logins.`);
-            navigateTo('hospitalLogin');
-        };
+    <div id="hospSearchResult">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:44px;height:44px;opacity:.28"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+        <h3>Search for a Patient</h3>
+        <p>Enter a patient's 10-digit ID to view their records from all hospitals, or to add a new entry.</p>
+      </div>
+    </div>
 
-        window.loginHospital = function() {
-            const code = document.getElementById('hospitalCode')?.value;
-            const hospital = hospitals.find(h => h.code === code);
-            
-            if(hospital) {
-                currentHospital = hospital;
-                currentView = 'hospitalDashboard';
-                render();
-            } else {
-                alert('Hospital Code not found. Please register first.');
-            }
-        };
+    <div id="hospLedger"></div>
+  </div>
+</div>
 
-        // Medical record functions
-        window.searchPatient = function() {
-            const patientId = document.getElementById('searchPatientId')?.value;
-            const patient = patients.find(p => p.id === patientId);
-            const resultsDiv = document.getElementById('searchResults');
-            
-            if(!patient) {
-                resultsDiv.innerHTML = '<div class="alert" style="background: #f8d7da; color: #721c24;">Patient not found. Please check the ID.</div>';
-                return;
-            }
-            
-            const patientRecords = medicalRecords.filter(r => r.patientId === patientId);
-            
-            resultsDiv.innerHTML = `
-                <div class="alert">
-                    <strong>Patient Found:</strong> ${patient.name}<br>
-                    <strong>Total Records:</strong> ${patientRecords.length}
-                </div>
-                ${patientRecords.map(record => `
-                    <div class="record-card">
-                        <h4>🏥 Record from ${record.hospitalName}</h4>
-                        <p><strong>Date:</strong> ${new Date(record.date).toLocaleDateString()}</p>
-                        <p><strong>Diagnosis:</strong> ${record.diagnosis}</p>
-                        <p><strong>Prescription:</strong> ${record.prescription}</p>
-                        <p><strong>Notes:</strong> ${record.notes}</p>
-                        ${record.imageData ? `<img src="${record.imageData}" class="record-image" style="max-width: 200px;">` : ''}
-                    </div>
-                `).join('')}
-            `;
-        };
+<!-- PATIENT DASHBOARD -->
+<div class="page" id="page-pat-dash">
+  <div class="dashboard">
+    <div class="dash-header">
+      <div class="dash-left">
+        <div class="dash-avatar"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
+        <div>
+          <div class="dash-name" id="patDashName">Patient</div>
+          <div class="dash-sub">Patient Dashboard</div>
+        </div>
+      </div>
+      <div class="pat-id-box">
+        <div>
+          <div class="pat-id-label">Your Patient ID</div>
+          <div class="pat-id-num" id="patDashId">0000000000</div>
+        </div>
+        <button class="copy-btn" onclick="copyId()" title="Copy ID">
+          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:28px;font-weight:300;font-style:italic;">
+      Share your Patient ID with any hospital to allow them to add your medical records to this vault.
+    </p>
+    <div class="sec-label">Your Medical Records</div>
+    <div id="patRecordsList"></div>
+  </div>
+</div>
 
-        window.addMedicalRecord = function() {
-            const patientId = document.getElementById('recordPatientId')?.value;
-            const patient = patients.find(p => p.id === patientId);
-            
-            if(!patient) {
-                alert('Patient not found. Please enter a valid 10-digit Patient ID.');
-                return;
-            }
-            
-            const diagnosis = document.getElementById('diagnosis')?.value;
-            const prescription = document.getElementById('prescription')?.value;
-            const notes = document.getElementById('notes')?.value;
-            
-            if(!diagnosis || !prescription) {
-                alert('Please enter at least diagnosis and prescription');
-                return;
-            }
-            
-            let imageData = null;
-            const imageFile = document.getElementById('prescriptionImage')?.files[0];
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                imageData = e.target.result;
-                saveRecord(imageData);
-            };
-            
-            if(imageFile) {
-                reader.readAsDataURL(imageFile);
-            } else {
-                saveRecord(null);
-            }
-            
-            function saveRecord(imgData) {
-                const newRecord = {
-                    id: Date.now().toString(),
-                    patientId: patientId,
-                    hospitalId: currentHospital.code,
-                    hospitalName: currentHospital.name,
-                    diagnosis: diagnosis,
-                    prescription: prescription,
-                    notes: notes,
-                    imageData: imgData,
-                    date: new Date().toISOString(),
-                    reviews: []
-                };
-                
-                medicalRecords.push(newRecord);
-                saveAllData();
-                alert('Medical record added successfully!');
-                
-                // Clear form
-                document.getElementById('diagnosis').value = '';
-                document.getElementById('prescription').value = '';
-                document.getElementById('notes').value = '';
-                document.getElementById('prescriptionImage').value = '';
-                
-                // Refresh dashboard
-                render();
-            }
-        };
+<!-- ADD RECORD MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3>Add Medical Record</h3>
+    <p class="modal-sub" id="modalSub">Adding record for patient</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Attending Doctor <span class="req">*</span></label>
+        <input type="text" id="recDoc" class="form-control" placeholder="Dr. Full Name">
+      </div>
+      <div class="form-group">
+        <label>Date of Visit</label>
+        <input type="date" id="recDate" class="form-control">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Diagnosis <span class="req">*</span></label>
+      <textarea id="recDiag" class="form-control" placeholder="Clinical diagnosis and observations"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Prescription / Medications</label>
+      <textarea id="recRx" class="form-control" placeholder="Medications, dosage, instructions"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Clinical Notes</label>
+      <textarea id="recNotes" class="form-control" placeholder="Additional clinical notes"></textarea>
+    </div>
+    <div class="form-group">
+      <label>Prescription Image <span style="color:var(--muted);font-style:italic;text-transform:none;letter-spacing:0;">(optional)</span></label>
+      <div class="img-upload" onclick="document.getElementById('imgInput').click()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" style="width:28px;height:28px">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <p>Click to attach a photo of the prescription or report</p>
+        <p style="font-size:11px;margin-top:4px;color:#576070;">JPG, PNG, WEBP · max 2MB</p>
+        <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="handleImg(event)">
+      </div>
+      <div class="img-preview" id="imgPreview" style="display:none">
+        <img id="imgSrc" src="" alt="Preview">
+        <button class="img-remove" onclick="clearImg()">✕ Remove image</button>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-gold" id="saveRecordBtn" onclick="saveRecord()">Save Record</button>
+    </div>
+  </div>
+</div>
 
-        window.showReviewForm = function(recordId) {
-            const form = document.getElementById(`reviewForm_${recordId}`);
-            if(form) {
-                form.style.display = form.style.display === 'none' ? 'block' : 'none';
-            }
-        };
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toastTitle"></div>
+  <div class="toast-msg"   id="toastMsg"></div>
+</div>
 
-        window.submitReview = function(recordId) {
-            const comment = document.getElementById(`reviewComment_${recordId}`)?.value;
-            const rating = parseInt(document.getElementById(`reviewRating_${recordId}`)?.value);
-            
-            if(!comment) {
-                alert('Please enter a review comment');
-                return;
-            }
-            
-            const record = medicalRecords.find(r => r.id === recordId);
-            if(record) {
-                if(!record.reviews) record.reviews = [];
-                record.reviews.push({
-                    hospitalId: currentHospital.code,
-                    hospitalName: currentHospital.name,
-                    comment: comment,
-                    rating: rating,
-                    date: new Date().toISOString()
-                });
-                saveAllData();
-                alert('Review submitted successfully!');
-                render();
-            }
-        };
+<!-- GLOBAL LOADING OVERLAY -->
+<div id="goverlay">
+  <div class="spinner"></div>
+  <div style="color:var(--muted);font-size:13px;font-weight:300;" id="govMsg">Loading…</div>
+</div>
 
-        // Initialize
-        render();
-    </script>
+<script>
+// ═══════════════════════════════════════════════════════════════════
+//
+//  ▶▶  REPLACE THE URL BELOW WITH YOUR APPS SCRIPT WEB APP URL  ◀◀
+//
+//  How to get it:
+//  1. Open Code.gs in script.google.com
+//  2. Deploy → New Deployment → Web App
+//     Execute as: Me  |  Who has access: Anyone
+//  3. Copy the URL and paste it here (replacing the placeholder)
+//  4. Save this file and share it — no other config needed
+//
+// ═══════════════════════════════════════════════════════════════════
+const SCRIPT_URL = 'PASTE_YOUR_SCRIPT_URL_HERE';
+// ═══════════════════════════════════════════════════════════════════
+
+// ── STATE ──────────────────────────────────────────────────────────
+let currentUser = null;
+let currentType = null;
+let searchedPatient = null;
+let uploadedImg = null;
+
+// ── API CALL ───────────────────────────────────────────────────────
+// All data goes directly to YOUR Google Apps Script → YOUR Google Sheet.
+// Nothing is stored in the browser. Every login, search, and record
+// fetch hits the live Sheet in real time from any device.
+
+async function api(action, params = {}, method = 'GET') {
+  if (SCRIPT_URL === 'PASTE_YOUR_SCRIPT_URL_HERE') {
+    throw new Error('Please configure your Apps Script URL in med-vault.html (see instructions in the file).');
+  }
+  if (method === 'GET') {
+    const qs = new URLSearchParams({ action, ...params }).toString();
+    const r  = await fetch(`${SCRIPT_URL}?${qs}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  } else {
+    const r = await fetch(SCRIPT_URL, {
+      method: 'POST',
+      body:   JSON.stringify({ action, ...params }),
+      headers:{ 'Content-Type': 'text/plain;charset=utf-8' }
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  }
+}
+
+// ── UI HELPERS ─────────────────────────────────────────────────────
+function go(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(pageId).classList.add('active');
+  const nb = document.getElementById('navBtn');
+  nb.style.display = pageId === 'page-landing' ? 'none' : 'flex';
+  document.getElementById('navBtnTxt').textContent = pageId.includes('dash') ? 'Logout' : 'Back';
+  window.scrollTo(0, 0);
+}
+
+function handleNav() {
+  const active = document.querySelector('.page.active').id;
+  if (active.includes('dash')) { currentUser = null; currentType = null; searchedPatient = null; }
+  go('page-landing');
+}
+
+let _tt;
+function toast(title, msg, err = false) {
+  clearTimeout(_tt);
+  const t = document.getElementById('toast');
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastMsg').textContent   = msg;
+  t.className = 'toast' + (err ? ' err' : '');
+  t.classList.add('show');
+  _tt = setTimeout(() => t.classList.remove('show'), 6000);
+}
+
+function setBtn(id, txt, dis) {
+  const b = document.getElementById(id);
+  if (b) { b.textContent = txt; b.disabled = dis; }
+}
+
+function gloading(on, msg = 'Loading…') {
+  document.getElementById('govMsg').textContent = msg;
+  document.getElementById('goverlay').style.display = on ? 'flex' : 'none';
+}
+
+// SVG snippets reused in dynamic HTML
+const HOSPSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px"><rect x="3" y="6" width="18" height="15" rx="1"/><path d="M3 10h18M8 6V4h8v2M12 13v4M10 15h4"/></svg>`;
+const DOCSVG  = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:40px;height:40px;opacity:.25"><path d="M9 12h6M9 16h6M7 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2"/><path d="M9 4h6v4H9z"/></svg>`;
+
+// ── PATIENT REGISTRATION ───────────────────────────────────────────
+async function registerPatient() {
+  const name   = document.getElementById('patRegName').value.trim();
+  const gender = document.getElementById('patRegGender').value;
+  if (!name)   { toast('Required', 'Please enter your full name', true);  return; }
+  if (!gender) { toast('Required', 'Please select your gender',  true);  return; }
+
+  setBtn('patRegBtn', 'Registering…', true);
+  gloading(true, 'Creating your account…');
+  try {
+    const res = await api('registerPatient', {
+      name, gender,
+      dob:   document.getElementById('patRegDob').value,
+      blood: document.getElementById('patRegBlood').value,
+      phone: document.getElementById('patRegPhone').value
+    }, 'POST');
+    gloading(false);
+    if (!res.success) throw new Error(res.error || 'Registration failed');
+    setBtn('patRegBtn', 'Register & Get Patient ID', false);
+    currentUser = { patient_id: res.patient_id, name: res.name, gender: res.gender };
+    currentType = 'patient';
+    loadPatDash();
+    toast('Registered!', `Your Patient ID is: ${res.patient_id} — please save it!`);
+  } catch(e) {
+    gloading(false);
+    setBtn('patRegBtn', 'Register & Get Patient ID', false);
+    toast('Error', e.message, true);
+  }
+}
+
+// ── PATIENT LOGIN ──────────────────────────────────────────────────
+async function loginPatient() {
+  const id = document.getElementById('patLoginId').value.trim();
+  if (!/^\d{10}$/.test(id)) { toast('Invalid ID', 'Please enter a valid 10-digit Patient ID', true); return; }
+
+  setBtn('patLoginBtn', 'Verifying…', true);
+  gloading(true, 'Verifying your ID…');
+  try {
+    const res = await api('getPatient', { id });
+    gloading(false);
+    setBtn('patLoginBtn', 'Access Records', false);
+    if (!res.success) { toast('Not Found', 'No patient found with this ID. Please check and try again.', true); return; }
+    currentUser = res.patient;
+    currentType = 'patient';
+    loadPatDash();
+  } catch(e) {
+    gloading(false);
+    setBtn('patLoginBtn', 'Access Records', false);
+    toast('Error', e.message, true);
+  }
+}
+
+function loadPatDash() {
+  document.getElementById('patDashName').textContent = currentUser.name;
+  document.getElementById('patDashId').textContent   = currentUser.patient_id;
+  go('page-pat-dash');
+  fetchAndRenderPatRecords();
+}
+
+async function fetchAndRenderPatRecords() {
+  document.getElementById('patRecordsList').innerHTML = `<div class="loading"><div class="spinner"></div>Loading records…</div>`;
+  gloading(true, 'Loading your records…');
+  try {
+    const res = await api('getRecords', { patient_id: currentUser.patient_id });
+    gloading(false);
+    renderPatRecords(res.records || []);
+  } catch(e) {
+    gloading(false);
+    document.getElementById('patRecordsList').innerHTML = `<div class="empty-state">${DOCSVG}<h3>Could not load records</h3><p>${e.message}</p></div>`;
+  }
+}
+
+function renderPatRecords(records) {
+  const c = document.getElementById('patRecordsList');
+  if (!records.length) {
+    c.innerHTML = `<div class="empty-state" style="margin-top:0">${DOCSVG}
+      <h3>No Records Yet</h3>
+      <p>No hospital has added records for you yet. Share your Patient ID with your doctor or hospital.</p>
+    </div>`;
+    return;
+  }
+  c.innerHTML = `<div class="records-wrap">${records.map(r => `
+    <div class="record-card">
+      <div class="rec-top"><div class="rec-hosp-row">
+        <div class="rec-hosp-icon">${HOSPSVG}</div>
+        <div>
+          <div class="rec-hosp-name">${r.hospital_name || r.hospital_code}</div>
+          <div class="rec-meta"><span>${r.date||'—'}</span><span>${r.doctor||'—'}</span></div>
+        </div>
+      </div></div>
+      <div class="rec-fields">
+        ${r.diagnosis    ? `<div><div class="rfl">Diagnosis</div><div class="rfv">${r.diagnosis}</div></div>` : ''}
+        ${r.prescription ? `<div><div class="rfl">Prescription</div><div class="rfv">${r.prescription}</div></div>` : ''}
+        ${r.notes        ? `<div><div class="rfl">Clinical Notes</div><div class="rfv">${r.notes}</div></div>` : ''}
+      </div>
+      ${r.image_data ? `<img src="${r.image_data}" class="rec-img" alt="Prescription">` : ''}
+    </div>`).join('')}</div>`;
+}
+
+function copyId() {
+  navigator.clipboard.writeText(currentUser.patient_id)
+    .then(() => toast('Copied', 'Patient ID copied to clipboard'))
+    .catch(() => prompt('Your Patient ID:', currentUser.patient_id));
+}
+
+// ── HOSPITAL REGISTRATION ──────────────────────────────────────────
+async function registerHospital() {
+  const name = document.getElementById('hospRegName').value.trim();
+  const type = document.getElementById('hospRegType').value;
+  if (!name) { toast('Required', 'Please enter the hospital name', true); return; }
+  if (!type) { toast('Required', 'Please select the hospital type', true); return; }
+
+  setBtn('hospRegBtn', 'Registering…', true);
+  gloading(true, 'Registering hospital…');
+  try {
+    const res = await api('registerHospital', {
+      name, type,
+      address: document.getElementById('hospRegAddr').value.trim(),
+      phone:   document.getElementById('hospRegPhone').value.trim(),
+      license: document.getElementById('hospRegLic').value.trim()
+    }, 'POST');
+    gloading(false);
+    if (!res.success) throw new Error(res.error || 'Registration failed');
+    setBtn('hospRegBtn', 'Register Hospital', false);
+    currentUser = { hospital_code: res.hospital_code, name: res.name, type: res.type };
+    currentType = 'hospital';
+    loadHospDash();
+    toast('Registered!', `Your Hospital Code is: ${res.hospital_code} — keep it safe!`);
+  } catch(e) {
+    gloading(false);
+    setBtn('hospRegBtn', 'Register Hospital', false);
+    toast('Error', e.message, true);
+  }
+}
+
+// ── HOSPITAL LOGIN ─────────────────────────────────────────────────
+async function loginHospital() {
+  const code = document.getElementById('hospLoginCode').value.trim().toUpperCase();
+  if (!code) { toast('Required', 'Please enter your hospital code', true); return; }
+
+  setBtn('hospLoginBtn', 'Verifying…', true);
+  gloading(true, 'Verifying hospital code…');
+  try {
+    const res = await api('getHospital', { code });
+    gloading(false);
+    setBtn('hospLoginBtn', 'Login', false);
+    if (!res.success) { toast('Not Found', 'No hospital found with this code.', true); return; }
+    currentUser = res.hospital;
+    currentType = 'hospital';
+    loadHospDash();
+  } catch(e) {
+    gloading(false);
+    setBtn('hospLoginBtn', 'Login', false);
+    toast('Error', e.message, true);
+  }
+}
+
+async function loadHospDash() {
+  document.getElementById('hospDashName').textContent = currentUser.name;
+  document.getElementById('hospDashCode').textContent = currentUser.hospital_code || currentUser.code;
+  document.getElementById('hospDashType').textContent = currentUser.type ? `${currentUser.type} Hospital` : '';
+  document.getElementById('hospSearchId').value = '';
+  searchedPatient = null;
+  document.getElementById('hospSearchResult').innerHTML = `<div class="empty-state">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:44px;height:44px;opacity:.28"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/></svg>
+    <h3>Search for a Patient</h3>
+    <p>Enter a patient's 10-digit ID above to view their complete medical history or add a new record.</p>
+  </div>`;
+  go('page-hosp-dash');
+  fetchAndRenderLedger();
+}
+
+// ── PATIENT SEARCH ─────────────────────────────────────────────────
+async function searchPatient() {
+  const id = document.getElementById('hospSearchId').value.trim();
+  if (!/^\d{10}$/.test(id)) { toast('Invalid', 'Enter a valid 10-digit Patient ID', true); return; }
+
+  setBtn('searchBtn', 'Searching…', true);
+  gloading(true, 'Searching…');
+  try {
+    const [patRes, recRes] = await Promise.all([
+      api('getPatient',  { id }),
+      api('getRecords',  { patient_id: id })
+    ]);
+    gloading(false);
+    setBtn('searchBtn', 'Search', false);
+
+    if (!patRes.success) {
+      searchedPatient = null;
+      document.getElementById('hospSearchResult').innerHTML = `<div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:44px;height:44px;opacity:.28"><circle cx="12" cy="12" r="9"/><path d="m15 9-6 6M9 9l6 6"/></svg>
+        <h3>Patient Not Found</h3>
+        <p>No patient registered with ID <strong style="color:var(--gold);font-family:'Source Code Pro',monospace;">${id}</strong>. Ask them to register on Med-Vault first.</p>
+      </div>`;
+      return;
+    }
+    searchedPatient = patRes.patient;
+    renderPatientForHosp(patRes.patient, recRes.records || []);
+  } catch(e) {
+    gloading(false);
+    setBtn('searchBtn', 'Search', false);
+    toast('Error', e.message, true);
+  }
+}
+
+function renderPatientForHosp(patient, records) {
+  const hospCode   = currentUser.hospital_code || currentUser.code;
+  const genBadge   = patient.gender     ? `<span style="font-size:10px;font-weight:600;color:var(--gold);background:var(--gold-dim);border:1px solid var(--gold-border);padding:2px 10px;border-radius:100px;margin-left:8px;">${patient.gender}</span>` : '';
+  const bloodBadge = patient.blood_group ? `<span style="font-size:10px;font-weight:600;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--border-strong);padding:2px 10px;border-radius:100px;margin-left:6px;">${patient.blood_group}</span>` : '';
+
+  const recHtml = !records.length
+    ? `<div style="text-align:center;padding:40px;color:var(--muted);">${DOCSVG}<p style="font-weight:300;margin-top:12px;">No records yet for this patient</p></div>`
+    : `<div class="records-wrap">${records.map(r => {
+        const own = (r.hospital_code === hospCode);
+        return `<div class="record-card">
+          <div class="rec-top"><div class="rec-hosp-row">
+            <div class="rec-hosp-icon">${HOSPSVG}</div>
+            <div>
+              <div class="rec-hosp-name">${r.hospital_name||r.hospital_code}${own?'<span class="own-tag">Your Record</span>':''}</div>
+              <div class="rec-meta"><span>${r.date||'—'}</span><span>${r.doctor||'—'}</span></div>
+            </div>
+          </div></div>
+          <div class="rec-fields">
+            ${r.diagnosis    ? `<div><div class="rfl">Diagnosis</div><div class="rfv">${r.diagnosis}</div></div>` : ''}
+            ${r.prescription ? `<div><div class="rfl">Prescription</div><div class="rfv">${r.prescription}</div></div>` : ''}
+            ${r.notes        ? `<div><div class="rfl">Clinical Notes</div><div class="rfv">${r.notes}</div></div>` : ''}
+          </div>
+          ${r.image_data ? `<img src="${r.image_data}" class="rec-img" alt="Prescription">` : ''}
+        </div>`;
+      }).join('')}</div>`;
+
+  document.getElementById('hospSearchResult').innerHTML = `
+  <div style="background:var(--navy-2);border:1px solid var(--border);border-radius:16px;padding:28px;">
+    <div style="display:flex;align-items:center;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--border);margin-bottom:20px;flex-wrap:wrap;">
+      <div style="width:48px;height:48px;border-radius:12px;background:var(--gold-dim);border:1px solid var(--gold-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </div>
+      <div>
+        <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;">${patient.name}${genBadge}${bloodBadge}</div>
+        <div style="font-size:12px;color:var(--muted);font-family:'Source Code Pro',monospace;margin-top:4px;">ID: ${patient.patient_id}</div>
+        ${patient.dob ? `<div style="font-size:12px;color:var(--muted);margin-top:2px;">DOB: ${patient.dob}</div>` : ''}
+      </div>
+    </div>
+    ${recHtml}
+  </div>`;
+}
+
+// ── LEDGER ─────────────────────────────────────────────────────────
+async function fetchAndRenderLedger() {
+  document.getElementById('hospLedger').innerHTML = `<div class="loading" style="padding:28px;"><div class="spinner"></div>Loading registry…</div>`;
+  try {
+    const res = await api('getLedger');
+    renderLedger(res.patients || [], res.hospitals || []);
+  } catch(e) {
+    document.getElementById('hospLedger').innerHTML = '';
+  }
+}
+
+function renderLedger(patients, hospitals) {
+  const fmt = d => { try { return new Date(d).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}); } catch { return d||'—'; } };
+
+  document.getElementById('hospLedger').innerHTML = `
+  <div class="ledger-card" style="margin-top:32px;">
+    <div class="ledger-head">
+      <div class="ledger-title">Patient Registry</div>
+      <span class="ledger-count">${patients.length} patient${patients.length!==1?'s':''}</span>
+    </div>
+    ${!patients.length
+      ? `<div style="padding:32px;text-align:center;color:var(--muted);font-size:13px;font-weight:300;">No patients registered yet.</div>`
+      : `<div style="overflow-x:auto;"><table class="ltable">
+          <thead><tr><th>Patient ID</th><th>Name</th><th>Gender</th><th>Blood</th><th>Registered</th></tr></thead>
+          <tbody>${patients.map(p=>`<tr>
+            <td><span class="mono">${p.patient_id}</span></td>
+            <td>${p.name}</td>
+            <td>${p.gender?`<span class="badge">${p.gender}</span>`:'—'}</td>
+            <td>${p.blood_group||'—'}</td>
+            <td style="color:var(--muted);font-size:12px;">${fmt(p.created_at)}</td>
+          </tr>`).join('')}</tbody>
+        </table></div>`}
+  </div>
+  <div class="ledger-card" style="margin-top:20px;margin-bottom:8px;">
+    <div class="ledger-head">
+      <div class="ledger-title">Hospital Registry</div>
+      <span class="ledger-count">${hospitals.length} hospital${hospitals.length!==1?'s':''}</span>
+    </div>
+    ${!hospitals.length
+      ? `<div style="padding:32px;text-align:center;color:var(--muted);font-size:13px;font-weight:300;">No hospitals registered yet.</div>`
+      : `<div style="overflow-x:auto;"><table class="ltable">
+          <thead><tr><th>Code</th><th>Name</th><th>Type</th><th>Address</th><th>Registered</th></tr></thead>
+          <tbody>${hospitals.map(h=>`<tr>
+            <td><span class="mono">${h.hospital_code}</span></td>
+            <td>${h.name}</td>
+            <td>${h.type?`<span class="badge">${h.type}</span>`:'—'}</td>
+            <td style="color:var(--muted);font-size:12px;">${h.address||'—'}</td>
+            <td style="color:var(--muted);font-size:12px;">${fmt(h.created_at)}</td>
+          </tr>`).join('')}</tbody>
+        </table></div>`}
+  </div>`;
+}
+
+// ── ADD RECORD MODAL ───────────────────────────────────────────────
+function openModal() {
+  if (!searchedPatient) { toast('No Patient', 'Search for a patient first', true); return; }
+  document.getElementById('modalSub').textContent = `Adding record for: ${searchedPatient.name} · ${searchedPatient.patient_id}`;
+  document.getElementById('recDoc').value   = '';
+  document.getElementById('recDate').value  = new Date().toISOString().split('T')[0];
+  document.getElementById('recDiag').value  = '';
+  document.getElementById('recRx').value    = '';
+  document.getElementById('recNotes').value = '';
+  clearImg();
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+function handleImg(e) {
+  const f = e.target.files[0]; if (!f) return;
+  if (f.size > 2*1024*1024) { toast('Too Large', 'Max image size is 2MB', true); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    uploadedImg = ev.target.result;
+    document.getElementById('imgSrc').src = uploadedImg;
+    document.getElementById('imgPreview').style.display = 'block';
+  };
+  reader.readAsDataURL(f);
+}
+function clearImg() {
+  uploadedImg = null;
+  document.getElementById('imgInput').value = '';
+  document.getElementById('imgPreview').style.display = 'none';
+  document.getElementById('imgSrc').src = '';
+}
+
+async function saveRecord() {
+  const doc  = document.getElementById('recDoc').value.trim();
+  const diag = document.getElementById('recDiag').value.trim();
+  if (!doc)  { toast('Required', "Please enter the doctor's name", true); return; }
+  if (!diag) { toast('Required', 'Please enter the diagnosis',      true); return; }
+
+  setBtn('saveRecordBtn', 'Saving…', true);
+  gloading(true, 'Saving record…');
+  try {
+    const hospCode = currentUser.hospital_code || currentUser.code;
+    const res = await api('addRecord', {
+      patient_id:    searchedPatient.patient_id,
+      hospital_code: hospCode,
+      hospital_name: currentUser.name,
+      doctor:        doc,
+      date:          document.getElementById('recDate').value || new Date().toISOString().split('T')[0],
+      diagnosis:     diag,
+      prescription:  document.getElementById('recRx').value.trim(),
+      notes:         document.getElementById('recNotes').value.trim(),
+      image_data:    uploadedImg || ''
+    }, 'POST');
+    gloading(false);
+    if (!res.success) throw new Error(res.error || 'Save failed');
+    setBtn('saveRecordBtn', 'Save Record', false);
+    closeModal();
+    // Refresh the patient view live from Sheets
+    const recRes = await api('getRecords', { patient_id: searchedPatient.patient_id });
+    renderPatientForHosp(searchedPatient, recRes.records || []);
+    toast('Record Saved', `Medical record added for ${searchedPatient.name}`);
+  } catch(e) {
+    gloading(false);
+    setBtn('saveRecordBtn', 'Save Record', false);
+    toast('Error', e.message, true);
+  }
+}
+
+// ── INIT ───────────────────────────────────────────────────────────
+document.getElementById('recDate').value = new Date().toISOString().split('T')[0];
+
+// Warn if URL not configured yet
+if (SCRIPT_URL === 'PASTE_YOUR_SCRIPT_URL_HERE') {
+  document.querySelector('.landing-sub').textContent =
+    '⚠ Backend not configured. Open med-vault.html in a text editor, find PASTE_YOUR_SCRIPT_URL_HERE and replace it with your Apps Script Web App URL.';
+}
+</script>
 </body>
 </html>
